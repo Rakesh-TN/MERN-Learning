@@ -28,17 +28,61 @@ const createPost = async(req, res) => {
 
 // GET SINGLE POST
 const getSinglePosts = async (req, res) => {
-    
-}
+    const { id } = req.params;
+    try {
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({ message: "Post Not Found" });
+        }
+        res.status(200).json({ post });
+    } catch (error) {
+        if (error.name === "CastError" && error.kind === "objectId") {
+            return res.status(400).json({ message: "Invalid Post ID" });
+        }
+        res.status(500).json({ message: message.error });
+    }
+};
+
 
 // Update POST
 const updatePosts = async (req, res) => {
-    
+    const { id } = req.params
+    try {
+        const post = await Post.findById(id)
+        if (!post) {
+            return res.status(404).json({ message: "Post Not Found" });
+        }
+        post.title = req.body.title || post.title;
+        post.description = req.body.description || post.description;
+        const updatePosts = await post.save();
+        res.status(200).json({
+            id: updatePosts._id,
+            title: updatePosts.title,
+            description: updatePosts.description
+        })
+    } catch (error) {
+        if (error.name === "CastError" && error.kind === "objectId") {
+            return res.status(400).json({ message: "Invalid Post ID" });
+        }
+        res.status(500).json({ message: message.error });
+    }
 }
 
 // DELETE POST
 const deletePosts = async (req, res) => {
-    
+    const { id } = req.params
+    try {
+        const post = await Post.findByIdAndDelete(id)
+        if (!post) {
+            return res.status(404).json({ message: "Post Not Found" });
+        }
+        res.status(200).json({ message : "Post Deleted Successfully" })
+    } catch (error) {
+        if (error.name === "CastError" && error.kind === "objectId") {
+            return res.status(400).json({ message: "Invalid Post ID" });
+        }
+        res.status(500).json({ message: message.error });
+    }
 }
 
 export {createPost, getPosts, getSinglePosts, updatePosts, deletePosts}
